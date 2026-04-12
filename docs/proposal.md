@@ -12,7 +12,7 @@
 
 **Role:** Planning Analyst  
 **Company:** SKIMS  
-**Link:** [paste the Indeed URL from your browser here]
+**Link:** https://www.indeed.com/viewjob?jk=3f8883b8e7ddbb49&from=mcp-claude-jobsearch&jrtk=5-cmh1-0-1jlvnls8ago9h800-3f8883b8e7ddbb49&xpse=SoDL67I3l_nkBRxSrJ0LbzkdCdPP&xfps=96334fae-4a5e-48bd-94ee-c4e63fbc8f81&xkcb=SoB867M3l_nXTd2qpZ0IbzkdCdPP
 
 **SQL requirement (quote from posting):**
 > "Proficiency in data analysis tools and software, such as Excel, SQL, and forecasting software (e.g., SAP, Oracle, or similar)"
