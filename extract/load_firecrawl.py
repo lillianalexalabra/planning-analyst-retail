@@ -49,7 +49,7 @@ def scrape(app: V1FirecrawlApp, url: str) -> str:
         return result.markdown
     if isinstance(result, dict):
         return result.get("markdown") or result.get("content") or ""
-    return str(result)
+    raise ValueError(f"Unexpected scrape result type: {type(result)}")
 
 
 def get_conn():
