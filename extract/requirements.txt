@@ -1,3 +1,4 @@
+# extract/requirements.txt
 snowflake-connector-python>=3.0.0
 requests>=2.28.0
 firecrawl-py>=1.0.0
