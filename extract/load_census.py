@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS RAW.CENSUS_RETAIL_SALES (
 )
 """
 
+
 def fetch_census():
     params = {
         "get": "cell_value,error_data,time_slot_id,seasonally_adj,category_code,data_type_code",
@@ -47,9 +48,13 @@ def get_conn():
 
 
 def load(rows):
+    if not rows:
+        raise ValueError("load() called with empty rows list")
     conn = get_conn()
+    cur = None
     try:
         cur = conn.cursor()
+        cur.execute("CREATE SCHEMA IF NOT EXISTS RAW")
         cur.execute(CREATE_TABLE)
         cur.execute("TRUNCATE TABLE RAW.CENSUS_RETAIL_SALES")
         values = [
@@ -77,6 +82,10 @@ def load(rows):
         conn.rollback()
         raise
     finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
         conn.close()
 
 
