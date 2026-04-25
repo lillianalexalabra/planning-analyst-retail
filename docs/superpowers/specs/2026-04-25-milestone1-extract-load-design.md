@@ -98,7 +98,9 @@ All columns `VARCHAR` except timestamps — raw layer is a landing zone with no 
 
 ## Environment Variables
 
-Stored in `.env` (gitignored). Never committed.
+Stored in `.env` (gitignored). Never committed. Template committed at `extract/.env.example`.
+
+**Status: credentials configured locally as of 2026-04-25.**
 
 ```
 SNOWFLAKE_ACCOUNT=
