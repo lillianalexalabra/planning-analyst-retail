@@ -44,7 +44,6 @@ def url_to_slug(url: str) -> str:
 
 
 def scrape(app: V1FirecrawlApp, url: str) -> str:
-    # V1FirecrawlApp (firecrawl-py >= 1.x) returns a V1ScrapeResponse object
     result = app.scrape_url(url, formats=["markdown"])
     if hasattr(result, "markdown") and result.markdown:
         return result.markdown
@@ -67,30 +66,41 @@ def get_conn():
 if __name__ == "__main__":
     app = V1FirecrawlApp(api_key=os.environ["FIRECRAWL_API_KEY"])
     conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("CREATE SCHEMA IF NOT EXISTS RAW")
-    cur.execute(CREATE_TABLE)
+    cur = None
+    try:
+        cur = conn.cursor()
+        cur.execute("CREATE SCHEMA IF NOT EXISTS RAW")
+        cur.execute(CREATE_TABLE)
 
-    loaded = 0
-    for target in TARGETS:
-        url, source = target["url"], target["source_name"]
-        print(f"Scraping {url} ...")
+        loaded = 0
+        for target in TARGETS:
+            url, source = target["url"], target["source_name"]
+            print(f"Scraping {url} ...")
+            try:
+                content = scrape(app, url)
+                if not content:
+                    print(f"  SKIP — empty content returned")
+                    continue
+                scraped_at = datetime.now(timezone.utc)
+
+                # Insert into Snowflake first (durable record before file write)
+                cur.execute(INSERT_SQL, (url, source, content, scraped_at))
+                conn.commit()
+
+                # Write to knowledge/raw/ after Snowflake commit
+                slug = url_to_slug(url)
+                (KNOWLEDGE_RAW / f"{slug}.md").write_text(content, encoding="utf-8")
+
+                loaded += 1
+                print(f"  OK — {len(content)} chars")
+            except Exception as exc:
+                print(f"  SKIP — {exc}")
+
+        print(f"\nDone — {loaded}/{len(TARGETS)} pages loaded to RAW.FIRECRAWL_PAGES and knowledge/raw/")
+    finally:
         try:
-            content = scrape(app, url)
-            scraped_at = datetime.now(timezone.utc)
-
-            # Write to knowledge/raw/
-            slug = url_to_slug(url)
-            (KNOWLEDGE_RAW / f"{slug}.md").write_text(content, encoding="utf-8")
-
-            # Insert into Snowflake
-            cur.execute(INSERT_SQL, (url, source, content, scraped_at))
-            conn.commit()
-            loaded += 1
-            print(f"  OK — {len(content)} chars")
-        except Exception as exc:
-            print(f"  SKIP — {exc}")
-
-    cur.close()
-    conn.close()
-    print(f"\nDone — {loaded}/{len(TARGETS)} pages loaded to RAW.FIRECRAWL_PAGES and knowledge/raw/")
+            if cur:
+                cur.close()
+        except Exception:
+            pass
+        conn.close()
