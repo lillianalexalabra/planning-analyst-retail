@@ -22,14 +22,6 @@ CREATE TABLE IF NOT EXISTS RAW.CENSUS_RETAIL_SALES (
 )
 """
 
-INSERT_SQL = """
-INSERT INTO RAW.CENSUS_RETAIL_SALES
-    (cell_value, error_data, time_slot_id, seasonally_adj,
-     category_code, data_type_code, geo_level)
-VALUES (%s, %s, %s, %s, %s, %s, %s)
-"""
-
-
 def fetch_census():
     params = {
         "get": "cell_value,error_data,time_slot_id,seasonally_adj,category_code,data_type_code",
@@ -56,32 +48,45 @@ def get_conn():
 
 def load(rows):
     conn = get_conn()
-    cur = conn.cursor()
-    cur.execute(CREATE_TABLE)
-    cur.execute("TRUNCATE TABLE RAW.CENSUS_RETAIL_SALES")
-    values = [
-        (
-            r.get("cell_value"),
-            r.get("error_data"),
-            r.get("time_slot_id"),
-            r.get("seasonally_adj"),
-            r.get("category_code"),
-            r.get("data_type_code"),
-            "US",
+    try:
+        cur = conn.cursor()
+        cur.execute(CREATE_TABLE)
+        cur.execute("TRUNCATE TABLE RAW.CENSUS_RETAIL_SALES")
+        values = [
+            (
+                r.get("cell_value"),
+                r.get("error_data"),
+                r.get("time_slot_id"),
+                r.get("seasonally_adj"),
+                r.get("category_code"),
+                r.get("data_type_code"),
+                "US",
+            )
+            for r in rows
+        ]
+        placeholders = ", ".join(["(%s, %s, %s, %s, %s, %s, %s)"] * len(values))
+        cur.execute(
+            f"INSERT INTO RAW.CENSUS_RETAIL_SALES "
+            f"(cell_value, error_data, time_slot_id, seasonally_adj, "
+            f"category_code, data_type_code, geo_level) VALUES {placeholders}",
+            [v for row in values for v in row],
         )
-        for r in rows
-    ]
-    cur.executemany(INSERT_SQL, values)
-    conn.commit()
-    cur.close()
-    conn.close()
-    return len(values)
+        conn.commit()
+        return len(values)
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":
     print("Fetching Census MRTS data (2019-present)...")
     rows = fetch_census()
     print(f"Fetched {len(rows)} rows from Census API")
+    if not rows:
+        print("No rows returned from Census API — aborting to protect existing data.")
+        raise SystemExit(1)
     print("Loading to Snowflake RAW.CENSUS_RETAIL_SALES...")
     count = load(rows)
     print(f"Done — {count} rows loaded")
