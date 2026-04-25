@@ -33,7 +33,13 @@ def fetch_census():
     resp.raise_for_status()
     data = resp.json()
     headers, *rows = data
-    return [dict(zip(headers, row)) for row in rows]
+    records = [dict(zip(headers, row)) for row in rows]
+    # The API returns time_slot_id as a constant '0'; the actual period is in the
+    # automatically-appended 'time' dimension column (always last non-geo column).
+    for r in records:
+        if r.get("time"):
+            r["time_slot_id"] = r["time"]
+    return records
 
 
 def get_conn():
