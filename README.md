@@ -122,7 +122,45 @@ python extract/load_firecrawl.py
 
 ## Pipeline Diagram
 
-_Coming in Milestone 02._
+```mermaid
+flowchart TB
+    subgraph src1 [Source 1 — Structured Data]
+        A["Census Bureau MRTS API\n(no auth required)"]
+    end
+
+    subgraph src2 [Source 2 — Knowledge Base]
+        B["Web Sources\n(SKIMS, BoF, Vogue Business, NRF)"]
+    end
+
+    subgraph extract [Extract & Load — extract/]
+        C["load_census.py"]
+        D["load_firecrawl.py"]
+    end
+
+    subgraph raw [Snowflake — RAW Schema]
+        E["RAW.CENSUS_RETAIL_SALES"]
+        F["RAW.FIRECRAWL_PAGES"]
+    end
+
+    subgraph kb [Knowledge Base — knowledge/]
+        G["knowledge/raw/\n(scraped markdown files)"]
+        H["knowledge/wiki/\n(Claude Code synthesis)"]
+    end
+
+    subgraph dbt [dbt — Transformation]
+        I["stg_census_retail\n(staging)"]
+        J["dim_date · dim_category · dim_region\nfact_retail_sales\n(mart / star schema)"]
+    end
+
+    subgraph output [Output]
+        K["Streamlit Dashboard\n(deployed)"]
+        L["Claude Code\n(knowledge base queries)"]
+    end
+
+    A --> C --> E --> I --> J --> K
+    B --> D --> F
+    D --> G --> H --> L
+```
 
 ## ERD
 
