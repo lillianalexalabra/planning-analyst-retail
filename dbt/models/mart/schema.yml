@@ -1,0 +1,52 @@
+# dbt/models/mart/schema.yml
+version: 2
+
+models:
+  - name: dim_date
+    description: "Date dimension with year, month, quarter, and retail season"
+    columns:
+      - name: period
+        description: "Month in YYYY-MM format (primary key)"
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_category
+    description: "Retail category dimension mapping NAICS codes to readable names"
+    columns:
+      - name: category_code
+        description: "NAICS-based retail category code (primary key)"
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_region
+    description: "Region dimension — single US national row"
+    columns:
+      - name: region_code
+        description: "Region identifier (primary key)"
+        tests:
+          - not_null
+          - unique
+
+  - name: fact_retail_sales
+    description: "Monthly retail sales fact table with month-over-month and year-over-year change metrics"
+    columns:
+      - name: period
+        description: "Foreign key to dim_date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: period
+      - name: category_code
+        description: "Foreign key to dim_category"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_category')
+              field: category_code
+      - name: sales_millions
+        description: "Retail sales in millions of dollars"
+        tests:
+          - not_null
