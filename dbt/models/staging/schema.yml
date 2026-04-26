@@ -1,0 +1,27 @@
+# dbt/models/staging/schema.yml
+version: 2
+
+sources:
+  - name: raw
+    database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
+    schema: RAW
+    tables:
+      - name: census_retail_sales
+        description: "Raw monthly retail trade data from US Census Bureau MRTS API"
+
+models:
+  - name: stg_census_retail
+    description: "Cleaned Census MRTS retail sales — all data types, null/suppressed values removed"
+    columns:
+      - name: period
+        description: "Month in YYYY-MM format"
+        tests:
+          - not_null
+      - name: category_code
+        description: "NAICS-based retail category code"
+        tests:
+          - not_null
+      - name: sales_millions
+        description: "Retail sales in millions of dollars"
+        tests:
+          - not_null
