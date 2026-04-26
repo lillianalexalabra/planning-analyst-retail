@@ -1,0 +1,39 @@
+# .github/workflows/pipeline.yml
+name: Retail Analytics Pipeline
+
+on:
+  schedule:
+    - cron: '0 6 5 * *'   # 6 AM UTC on the 5th of every month
+  workflow_dispatch:        # enable manual runs from the GitHub UI
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_ACCOUNT:   ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER:      ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD:  ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_DATABASE:  ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_ROLE:      ${{ secrets.SNOWFLAKE_ROLE }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r extract/requirements.txt
+
+      - name: Extract and load Census data
+        run: python extract/load_census.py
+
+      - name: Run dbt models
+        run: dbt run --profiles-dir dbt --project-dir dbt
+
+      - name: Run dbt tests
+        run: dbt test --profiles-dir dbt --project-dir dbt
