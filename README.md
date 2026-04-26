@@ -91,6 +91,19 @@ python extract/load_census.py
 python extract/load_firecrawl.py
 ```
 
+### 4. Run dbt transformations
+
+```bash
+set -a; source .env; set +a
+dbt run --profiles-dir dbt --project-dir dbt
+dbt test --profiles-dir dbt --project-dir dbt
+```
+
+This creates the `MARTS` schema in Snowflake with five models:
+- `stg_census_retail` (view) — cleaned staging layer
+- `dim_date`, `dim_category`, `dim_region` (tables) — dimension tables
+- `fact_retail_sales` (table) — monthly sales with MoM and YoY metrics
+
 ---
 
 ## Snowflake Schema (RAW Layer)
@@ -164,7 +177,7 @@ flowchart TB
 
 ## ERD
 
-_Coming in Milestone 02 after dbt star schema is built._
+_Coming in Milestone 02._
 
 ---
 
