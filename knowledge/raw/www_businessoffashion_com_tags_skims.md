@@ -2,7 +2,7 @@
 
 [Search](https://www.businessoffashion.com/search/)
 
-[![The Business of Fashion](https://www.businessoffashion.com/pf/resources/images/BofLogo.svg?d=873)](https://www.businessoffashion.com/)
+[![The Business of Fashion](https://www.businessoffashion.com/pf/resources/images/BofLogo.svg?d=883)](https://www.businessoffashion.com/)
 
 [Search](https://www.businessoffashion.com/search/)
 
