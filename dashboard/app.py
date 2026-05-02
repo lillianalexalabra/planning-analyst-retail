@@ -15,8 +15,7 @@ MONTH_NAMES = {
 }
 
 
-@st.cache_resource
-def get_connection():
+def _make_connection():
     return snowflake.connector.connect(
         account=st.secrets["SNOWFLAKE_ACCOUNT"],
         user=st.secrets["SNOWFLAKE_USER"],
@@ -27,13 +26,34 @@ def get_connection():
     )
 
 
-def run_query(sql: str) -> pd.DataFrame:
+@st.cache_resource
+def get_connection():
+    return _make_connection()
+
+
+def run_query(sql: str, params: tuple = ()) -> pd.DataFrame:
+    """Execute a SQL query and return the results as a DataFrame.
+
+    Handles stale Snowflake connections (e.g. after the server-side idle
+    timeout of ~4 hours) by clearing the cached connection and retrying
+    once before propagating the error.
+    """
     conn = get_connection()
-    cur = conn.cursor()
-    cur.execute(sql)
-    df = cur.fetch_pandas_all()
-    cur.close()
-    return df
+    try:
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        df = cur.fetch_pandas_all()
+        cur.close()
+        return df
+    except Exception:
+        # Connection may have been closed server-side; evict and retry once.
+        get_connection.clear()
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        df = cur.fetch_pandas_all()
+        cur.close()
+        return df
 
 
 @st.cache_data(ttl=3600)
@@ -45,7 +65,8 @@ def load_categories() -> pd.DataFrame:
 
 @st.cache_data(ttl=3600)
 def load_sales(category_codes: tuple, year_min: int, year_max: int) -> pd.DataFrame:
-    codes_str = ", ".join(f"'{c}'" for c in category_codes)
+    # Build a parameterized IN clause using %s placeholders to avoid SQL injection.
+    placeholders = ", ".join(["%s"] * len(category_codes))
     sql = f"""
         SELECT
             f.PERIOD,
@@ -60,12 +81,12 @@ def load_sales(category_codes: tuple, year_min: int, year_max: int) -> pd.DataFr
         FROM MARTS.FACT_RETAIL_SALES f
         JOIN MARTS.DIM_DATE     d ON f.PERIOD        = d.PERIOD
         JOIN MARTS.DIM_CATEGORY c ON f.CATEGORY_CODE = c.CATEGORY_CODE
-        WHERE f.CATEGORY_CODE IN ({codes_str})
-          AND d.YEAR BETWEEN {year_min} AND {year_max}
+        WHERE f.CATEGORY_CODE IN ({placeholders})
+          AND d.YEAR BETWEEN %s AND %s
           AND f.SEASONALLY_ADJ = 'no'
         ORDER BY f.PERIOD, c.CATEGORY_NAME
     """
-    return run_query(sql)
+    return run_query(sql, params=(*category_codes, year_min, year_max))
 
 
 # ── Sidebar ──────────────────────────────────────────────────────────────────
@@ -78,9 +99,15 @@ cat_map = dict(zip(categories_df["CATEGORY_NAME"], categories_df["CATEGORY_CODE"
 
 default_cats = [c for c in ["Clothing Stores", "Clothing and Clothing Accessories Stores"] if c in cat_options]
 selected_names = st.sidebar.multiselect("Categories", options=cat_options, default=default_cats or cat_options[:2])
-selected_codes = tuple(cat_map[n] for n in selected_names) if selected_names else tuple(cat_map.values())[:2]
 
 year_range = st.sidebar.slider("Year range", min_value=2019, max_value=2025, value=(2019, 2024))
+
+# ── Guard: require at least one category ─────────────────────────────────────
+if not selected_names:
+    st.warning("Select at least one category from the sidebar to view the dashboard.")
+    st.stop()
+
+selected_codes = tuple(cat_map[n] for n in selected_names)
 
 # ── Load data ─────────────────────────────────────────────────────────────────
 df = load_sales(selected_codes, year_range[0], year_range[1])
