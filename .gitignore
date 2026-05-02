@@ -211,3 +211,7 @@ project-requirements-README.md
 
 # macOS
 .DS_Store
+
+# dbt
+dbt/.user.yml
+dbt/logs/
