@@ -129,7 +129,7 @@ with tab1:
 
     latest_rows = df.sort_values("PERIOD").groupby("CATEGORY_NAME").last().reset_index()
     cols = st.columns(max(len(latest_rows), 1))
-    for i, row in latest_rows.iterrows():
+    for i, (_, row) in enumerate(latest_rows.iterrows()):
         mom = row["MONTH_OVER_MONTH_PCT"]
         with cols[i % len(cols)]:
             st.metric(
