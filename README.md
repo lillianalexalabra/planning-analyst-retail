@@ -177,7 +177,38 @@ flowchart TB
 
 ## ERD
 
-_Coming in Milestone 02._
+```mermaid
+erDiagram
+    FACT_RETAIL_SALES {
+        varchar PERIOD FK
+        varchar CATEGORY_CODE FK
+        varchar REGION_CODE FK
+        varchar DATA_TYPE_CODE
+        varchar SEASONALLY_ADJ
+        float   SALES_MILLIONS
+        float   MONTH_OVER_MONTH_PCT
+        float   YEAR_OVER_YEAR_PCT
+    }
+    DIM_DATE {
+        varchar PERIOD PK
+        int     YEAR
+        int     MONTH
+        int     QUARTER
+        varchar SEASON
+    }
+    DIM_CATEGORY {
+        varchar CATEGORY_CODE PK
+        varchar CATEGORY_NAME
+    }
+    DIM_REGION {
+        varchar REGION_CODE PK
+        varchar REGION_NAME
+        varchar REGION_TYPE
+    }
+    FACT_RETAIL_SALES }o--|| DIM_DATE     : "period"
+    FACT_RETAIL_SALES }o--|| DIM_CATEGORY : "category_code"
+    FACT_RETAIL_SALES }o--|| DIM_REGION   : "region_code"
+```
 
 ---
 
@@ -199,5 +230,5 @@ See `CLAUDE.md` for query conventions.
 |---|---|
 | Proposal | ✅ Complete |
 | Milestone 01: Extract & Load | ✅ Complete |
-| Milestone 02: Transform, Dashboard & Knowledge Base | 🔲 In progress |
+| Milestone 02: Transform, Dashboard & Knowledge Base | ✅ Complete |
 | Final Submission | 🔲 Pending |
