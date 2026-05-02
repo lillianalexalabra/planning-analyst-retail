@@ -10,6 +10,7 @@ from firecrawl import V1FirecrawlApp
 load_dotenv(Path(__file__).parent.parent / ".env")
 
 TARGETS = [
+    # existing sources
     {"url": "https://skims.com/pages/our-story",               "source_name": "skims"},
     {"url": "https://skims.com/collections/shapewear",          "source_name": "skims"},
     {"url": "https://skims.com/collections/bras-and-underwear", "source_name": "skims"},
@@ -17,6 +18,17 @@ TARGETS = [
     {"url": "https://www.voguebusiness.com/t/skims",            "source_name": "voguebusiness"},
     {"url": "https://nrf.com/research/annual-retail-and-food-services-sales", "source_name": "nrf"},
     {"url": "https://nrf.com/research/monthly-retail-trade",    "source_name": "nrf"},
+    # new sources
+    {"url": "https://en.wikipedia.org/wiki/Skims",              "source_name": "wikipedia"},
+    {"url": "https://en.wikipedia.org/wiki/Spanx",              "source_name": "wikipedia"},
+    {"url": "https://en.wikipedia.org/wiki/Kim_Kardashian",     "source_name": "wikipedia"},
+    {"url": "https://en.wikipedia.org/wiki/Shapewear",          "source_name": "wikipedia"},
+    {"url": "https://skims.com/collections/loungewear",         "source_name": "skims"},
+    {"url": "https://skims.com/collections/swim",               "source_name": "skims"},
+    {"url": "https://skims.com/collections/home",               "source_name": "skims"},
+    {"url": "https://nrf.com/topics/holiday-and-seasonal-trends", "source_name": "nrf"},
+    {"url": "https://www.retaildive.com/tag/apparel/",          "source_name": "retaildive"},
+    {"url": "https://www.glossy.co/tag/skims/",                 "source_name": "glossy"},
 ]
 
 KNOWLEDGE_RAW = Path(__file__).parent.parent / "knowledge" / "raw"
