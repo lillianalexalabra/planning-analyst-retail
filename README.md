@@ -216,17 +216,14 @@ erDiagram
 
 Analysis of US Census Bureau Monthly Retail Trade Survey data (NAICS 448 — Clothing and Clothing Accessories Stores, 2019–2026) surfaces three planning-relevant findings:
 
-**1. December dominates — inventory must be positioned by mid-October.**
-December averages $9.3B in monthly clothing sales, 60% above the $5.8B annual monthly average and nearly 40% above November ($6.7B). With a 6–8 week apparel lead time, holiday inventory purchase orders must be placed by mid-October at the latest to land product in time.
+**1. Q4 holiday gifting drives a 24.5% demand surge — and December is the crown of that season.**
+October–December averages $7.2B/month vs. the $5.8B annual monthly average (+24.5%). December alone reaches $9.3B — 60% above a typical month and the single largest month in the calendar. The entire Q4 window requires inventory to be in place before demand peaks.
 
-**2. Q4 runs 24.5% above the annual average — but the window is narrow.**
-October–December combined average $7.2B/month vs. $5.8B annually. August shows a secondary peak ($6.1B, back-to-school) before a September dip. Planning teams should treat August–December as continuous elevated-demand period requiring early inventory commitment.
+**2. Demand falls 54% from December to January — the steepest drop in the calendar.**
+January averages $4.4B, down from December's $9.3B peak. This makes January the natural markdown and clearance window. Inventory not cleared before January faces the worst sell-through environment of the year.
 
-**3. January is the sharpest single-month demand drop in the calendar.**
-January averages $4.4B — 53% below December's peak. This makes January the natural markdown and clearance window. Inventory not cleared before January faces the steepest price-pressure environment of the year.
-
-**Bonus — COVID impact and recovery (2020–2022):**
-The clothing category fell 25% in 2020 ($261B → $195B annual) due to store closures and reduced occasion-wear demand. It rebounded past 2019 levels by 2022 ($293B) and continued growing through 2024 ($304B), suggesting the category's long-run demand trajectory is intact.
+**3. Recommendation: Commit to purchase orders by October 15.**
+With a 6–8 week apparel lead time (production + ocean freight + domestic distribution), holiday inventory must be ordered by mid-October to land in the warehouse before the November/December demand peak. By the time December arrives, it is already too late to reorder.
 
 ---
 
