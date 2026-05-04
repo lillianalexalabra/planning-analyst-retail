@@ -170,12 +170,37 @@ with tab2:
         color="SALES_MILLIONS",
         color_continuous_scale="Blues",
     )
-    fig2.update_layout(coloraxis_showscale=False, xaxis={"categoryorder": "array", "categoryarray": list(MONTH_NAMES.values())})
+    dec_sales = seasonal.loc[seasonal["MONTH"] == 12, "SALES_MILLIONS"].values
+    jan_sales = seasonal.loc[seasonal["MONTH"] == 1,  "SALES_MILLIONS"].values
+    if len(dec_sales) and len(jan_sales):
+        drop_pct = (jan_sales[0] - dec_sales[0]) / dec_sales[0]
+        fig2.add_annotation(
+            x="Dec", y=dec_sales[0],
+            ax="Jan", ay=jan_sales[0],
+            xref="x", yref="y", axref="x", ayref="y",
+            text=f"{drop_pct:.0%}",
+            showarrow=True,
+            arrowhead=3,
+            arrowcolor="#ef4444",
+            arrowwidth=2,
+            font={"color": "#ef4444", "size": 13},
+        )
+
+    fig2.update_layout(
+        coloraxis_showscale=False,
+        xaxis={"categoryorder": "array", "categoryarray": list(MONTH_NAMES.values())},
+    )
     st.plotly_chart(fig2, use_container_width=True)
 
+    if len(dec_sales) and len(jan_sales):
+        col_a, col_b, col_c = st.columns(3)
+        col_a.metric("December avg sales", f"${dec_sales[0]:,.0f}M")
+        col_b.metric("January avg sales",  f"${jan_sales[0]:,.0f}M")
+        col_c.metric("Dec → Jan drop",     f"{drop_pct:.0%}")
+
     st.caption(
-        "Peak months reveal when consumers drive highest demand. "
-        "Inventory for shapewear and intimates should be positioned 6–8 weeks ahead of peak months."
+        "The steepest single-month demand drop in the calendar. "
+        "Inventory not cleared before January faces the worst sell-through environment of the year."
     )
 
 ACTION_COLORS = {
