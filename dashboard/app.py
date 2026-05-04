@@ -188,24 +188,25 @@ with tab2:
         "Inventory for shapewear and intimates should be positioned 6–8 weeks ahead of peak months."
     )
 
+ACTION_COLORS = {
+    "Markdown Window":  "#ef4444",
+    "Normal":           "#94a3b8",
+    "Build Inventory":  "#22c55e",
+    "Peak Season":      "#f97316",
+}
+
+def month_action(month: int) -> str:
+    if month in (1, 2):
+        return "Markdown Window"
+    if month in (8, 9, 10):
+        return "Build Inventory"
+    if month in (11, 12):
+        return "Peak Season"
+    return "Normal"
+
 # ── Tab 3: Inventory Implications (Diagnostic) ────────────────────────────────
 with tab3:
-    st.subheader("What does this mean? YoY growth and inventory signals")
-
-    yoy_df = df.dropna(subset=["YEAR_OVER_YEAR_PCT"])
-    if not yoy_df.empty:
-        fig3 = px.line(
-            yoy_df,
-            x="PERIOD",
-            y="YEAR_OVER_YEAR_PCT",
-            color="CATEGORY_NAME",
-            title="Year-over-Year Sales Change",
-            labels={"PERIOD": "Month", "YEAR_OVER_YEAR_PCT": "YoY Change", "CATEGORY_NAME": "Category"},
-        )
-        fig3.add_hline(y=0, line_dash="dash", line_color="gray", annotation_text="Flat YoY")
-        fig3.update_yaxes(tickformat=".0%")
-        fig3.update_layout(hovermode="x unified")
-        st.plotly_chart(fig3, use_container_width=True)
+    st.subheader("What does this mean? Inventory action calendar")
 
     monthly_avg = df.groupby("MONTH")["SALES_MILLIONS"].mean()
     q4_avg = df[df["MONTH"].isin([10, 11, 12])]["SALES_MILLIONS"].mean()
@@ -214,15 +215,45 @@ with tab3:
     peak_month = int(monthly_avg.idxmax())
     trough_month = int(monthly_avg.idxmin())
 
-    st.markdown("### Inventory Positioning Summary")
     c1, c2, c3 = st.columns(3)
     c1.metric("Q4 vs Annual Average", f"{q4_uplift:+.1%}")
     c2.metric("Peak Demand Month", MONTH_NAMES.get(peak_month, "—"))
     c3.metric("Trough Month", MONTH_NAMES.get(trough_month, "—"))
 
+    action_df = (
+        monthly_avg
+        .reset_index()
+        .rename(columns={"MONTH": "month_num", "SALES_MILLIONS": "avg_sales"})
+    )
+    action_df["MONTH_NAME"] = action_df["month_num"].map(MONTH_NAMES)
+    action_df["Action"] = action_df["month_num"].map(month_action)
+    action_df = action_df.sort_values("month_num")
+
+    fig3 = px.bar(
+        action_df,
+        x="MONTH_NAME",
+        y="avg_sales",
+        color="Action",
+        color_discrete_map=ACTION_COLORS,
+        title="Inventory Action Calendar — Average Monthly Sales",
+        labels={"MONTH_NAME": "Month", "avg_sales": "Avg Sales ($M)"},
+        category_orders={
+            "MONTH_NAME": list(MONTH_NAMES.values()),
+            "Action": ["Markdown Window", "Normal", "Build Inventory", "Peak Season"],
+        },
+    )
+    fig3.add_hline(
+        y=full_avg,
+        line_dash="dash",
+        line_color="gray",
+        annotation_text="Annual avg",
+        annotation_position="top right",
+    )
+    st.plotly_chart(fig3, use_container_width=True)
+
     st.info(
-        "**Planning implication:** Q4 uplift signals elevated inventory positions entering October. "
-        "Trough months are buy-down windows. "
-        "Shapewear and intimates lead times typically run 6–8 weeks — "
-        "purchase orders should be placed ahead of the peak month shown above."
+        "🟢 **Build Inventory (Aug–Oct):** Place purchase orders now — 6–8 week lead times mean "
+        "holiday stock must be committed before demand peaks.  \n"
+        "🟠 **Peak Season (Nov–Dec):** Highest demand. Inventory should already be in place.  \n"
+        "🔴 **Markdown Window (Jan–Feb):** Demand drops sharply. Clear excess stock at discounts."
     )
