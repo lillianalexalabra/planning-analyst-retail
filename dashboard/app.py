@@ -147,6 +147,7 @@ with tab1:
         color_discrete_sequence=px.colors.qualitative.Plotly,
     )
     fig.update_layout(legend_title_text="Year", hovermode="x unified")
+    fig.update_yaxes(tickformat=",.0f")
     st.plotly_chart(fig, use_container_width=True)
 
 # ── Tab 2: Seasonal Patterns (Diagnostic) ─────────────────────────────────────
@@ -177,6 +178,7 @@ with tab2:
         coloraxis_showscale=False,
         xaxis={"categoryorder": "array", "categoryarray": list(MONTH_NAMES.values())},
     )
+    fig2.update_yaxes(tickformat=",.0f")
     st.plotly_chart(fig2, use_container_width=True)
 
     if len(dec_sales) and len(jan_sales):
@@ -202,6 +204,7 @@ with tab2:
             labels={"Avg Sales ($M)": "Avg Sales ($M)"},
         )
         fig_drop.update_layout(showlegend=False)
+        fig_drop.update_yaxes(tickformat=",.0f")
         st.plotly_chart(fig_drop, use_container_width=True)
 
     st.caption(
@@ -270,6 +273,7 @@ with tab3:
         annotation_text="Annual avg",
         annotation_position="top right",
     )
+    fig3.update_yaxes(tickformat=",.0f")
     st.plotly_chart(fig3, use_container_width=True)
 
     st.info(
