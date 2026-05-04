@@ -154,7 +154,7 @@ with tab1:
         title="Monthly Retail Sales by Year ($M)",
         labels={"MONTH_NAME": "Month", "SALES_MILLIONS": "Sales ($M)", "YEAR": "Year"},
         category_orders={"MONTH_NAME": list(MONTH_NAMES.values())},
-        color_discrete_sequence=px.colors.sequential.Blues_r,
+        color_discrete_sequence=px.colors.qualitative.Plotly,
     )
     fig.update_layout(legend_title_text="Year", hovermode="x unified")
     st.plotly_chart(fig, use_container_width=True)
