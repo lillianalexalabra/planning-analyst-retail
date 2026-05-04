@@ -138,15 +138,25 @@ with tab1:
                 delta=f"{mom * 100:+.1f}% MoM" if pd.notna(mom) else "—",
             )
 
-    fig = px.line(
-        df,
-        x="PERIOD",
-        y="SALES_MILLIONS",
-        color="CATEGORY_NAME",
-        title="Monthly Retail Sales ($M)",
-        labels={"PERIOD": "Month", "SALES_MILLIONS": "Sales ($M)", "CATEGORY_NAME": "Category"},
+    yearly = df.copy()
+    yearly["MONTH_NAME"] = yearly["MONTH"].map(MONTH_NAMES)
+    yearly_agg = (
+        yearly.groupby(["YEAR", "MONTH", "MONTH_NAME"])["SALES_MILLIONS"]
+        .mean()
+        .reset_index()
+        .sort_values(["YEAR", "MONTH"])
     )
-    fig.update_layout(legend_title_text="Category", hovermode="x unified")
+    fig = px.line(
+        yearly_agg,
+        x="MONTH_NAME",
+        y="SALES_MILLIONS",
+        color="YEAR",
+        title="Monthly Retail Sales by Year ($M)",
+        labels={"MONTH_NAME": "Month", "SALES_MILLIONS": "Sales ($M)", "YEAR": "Year"},
+        category_orders={"MONTH_NAME": list(MONTH_NAMES.values())},
+        color_discrete_sequence=px.colors.sequential.Blues_r,
+    )
+    fig.update_layout(legend_title_text="Year", hovermode="x unified")
     st.plotly_chart(fig, use_container_width=True)
 
 # ── Tab 2: Seasonal Patterns (Diagnostic) ─────────────────────────────────────
