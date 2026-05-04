@@ -84,6 +84,7 @@ def load_sales(category_codes: tuple, year_min: int, year_max: int) -> pd.DataFr
         WHERE f.CATEGORY_CODE IN ({placeholders})
           AND d.YEAR BETWEEN %s AND %s
           AND f.SEASONALLY_ADJ = 'no'
+          AND f.DATA_TYPE_CODE = 'SM'
         ORDER BY f.PERIOD, c.CATEGORY_NAME
     """
     return run_query(sql, params=(*category_codes, year_min, year_max))
