@@ -128,17 +128,6 @@ tab1, tab2, tab3 = st.tabs(["📈 Overview", "🗓 Seasonal Patterns", "📦 Inv
 with tab1:
     st.subheader("What happened? Monthly retail sales trends")
 
-    latest_rows = df.sort_values("PERIOD").groupby("CATEGORY_NAME").last().reset_index()
-    cols = st.columns(max(len(latest_rows), 1))
-    for i, (_, row) in enumerate(latest_rows.iterrows()):
-        mom = row["MONTH_OVER_MONTH_PCT"]
-        with cols[i % len(cols)]:
-            st.metric(
-                label=row["CATEGORY_NAME"],
-                value=f"${row['SALES_MILLIONS']:.1f}M",
-                delta=f"{mom * 100:+.1f}% MoM" if pd.notna(mom) else "—",
-            )
-
     yearly = df.copy()
     yearly["MONTH_NAME"] = yearly["MONTH"].map(MONTH_NAMES)
     yearly_agg = (
