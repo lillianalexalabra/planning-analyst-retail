@@ -172,19 +172,6 @@ with tab2:
     )
     dec_sales = seasonal.loc[seasonal["MONTH"] == 12, "SALES_MILLIONS"].values
     jan_sales = seasonal.loc[seasonal["MONTH"] == 1,  "SALES_MILLIONS"].values
-    if len(dec_sales) and len(jan_sales):
-        drop_pct = (jan_sales[0] - dec_sales[0]) / dec_sales[0]
-        fig2.add_annotation(
-            x="Dec", y=dec_sales[0],
-            ax="Jan", ay=jan_sales[0],
-            xref="x", yref="y", axref="x", ayref="y",
-            text=f"{drop_pct:.0%}",
-            showarrow=True,
-            arrowhead=3,
-            arrowcolor="#ef4444",
-            arrowwidth=2,
-            font={"color": "#ef4444", "size": 13},
-        )
 
     fig2.update_layout(
         coloraxis_showscale=False,
@@ -193,10 +180,29 @@ with tab2:
     st.plotly_chart(fig2, use_container_width=True)
 
     if len(dec_sales) and len(jan_sales):
+        drop_pct = (jan_sales[0] - dec_sales[0]) / dec_sales[0]
+
         col_a, col_b, col_c = st.columns(3)
         col_a.metric("December avg sales", f"${dec_sales[0]:,.0f}M")
         col_b.metric("January avg sales",  f"${jan_sales[0]:,.0f}M")
         col_c.metric("Dec → Jan drop",     f"{drop_pct:.0%}")
+
+        drop_df = pd.DataFrame({
+            "Month": ["December", "January"],
+            "Avg Sales ($M)": [dec_sales[0], jan_sales[0]],
+            "Color": ["#3b82f6", "#ef4444"],
+        })
+        fig_drop = px.bar(
+            drop_df,
+            x="Month",
+            y="Avg Sales ($M)",
+            color="Month",
+            color_discrete_map={"December": "#3b82f6", "January": "#ef4444"},
+            title="December → January Demand Drop",
+            labels={"Avg Sales ($M)": "Avg Sales ($M)"},
+        )
+        fig_drop.update_layout(showlegend=False)
+        st.plotly_chart(fig_drop, use_container_width=True)
 
     st.caption(
         "The steepest single-month demand drop in the calendar. "
