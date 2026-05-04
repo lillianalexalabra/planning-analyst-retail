@@ -266,13 +266,6 @@ with tab3:
             "Action": ["Markdown Window", "Normal", "Build Inventory", "Peak Season"],
         },
     )
-    fig3.add_hline(
-        y=full_avg,
-        line_dash="dash",
-        line_color="gray",
-        annotation_text="Annual avg",
-        annotation_position="top right",
-    )
     fig3.update_yaxes(tickformat=",.0f")
     st.plotly_chart(fig3, use_container_width=True)
 
