@@ -1,5 +1,7 @@
 # Retail Planning Analytics — SKIMS Market
 
+**Live dashboard:** https://planning-analyst-retail-e5aljtcqwdy3appczhunata.streamlit.app
+
 End-to-end analytics pipeline targeting the **Planning Analyst** role at SKIMS. Pulls US retail sales data from the Census Bureau API, scrapes industry sources via Firecrawl, loads both into Snowflake, transforms through a dbt star schema, and surfaces seasonal demand insights in a Streamlit dashboard.
 
 **Core business question:** How does seasonal demand in the shapewear, loungewear, and intimates category behave — and what does that mean for inventory positioning?
